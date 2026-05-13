@@ -1,0 +1,12 @@
+{
+  "name": "zen-trading-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
