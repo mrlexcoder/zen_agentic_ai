@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"trading-system/backend/internal/models"
+	"zen_agentic_ai/internal/models"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Service struct {

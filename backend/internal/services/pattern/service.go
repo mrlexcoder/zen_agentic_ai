@@ -2,11 +2,9 @@ package pattern
 
 import (
 	"math"
-	"sort"
-	"time"
-	"trading-system/backend/internal/models"
+	"zen_agentic_ai/internal/models"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Service struct {
@@ -548,7 +546,7 @@ func (s *Service) detectRisingWedge(candles []models.Candle) DetectedPattern {
 
 	// Check if both are rising but converging
 	last3Highs := highs[len(highs)-3:]
-	last3Lows := lows[len(lows)-3:()
+	last3Lows := lows[len(lows)-3:]
 
 	highsRising := last3Highs[2].Price > last3Highs[1].Price && last3Highs[1].Price > last3Highs[0].Price
 	lowsRising := last3Lows[2].Price > last3Lows[1].Price && last3Lows[1].Price > last3Lows[0].Price
@@ -584,7 +582,7 @@ func (s *Service) detectFallingWedge(candles []models.Candle) DetectedPattern {
 	}
 
 	last3Highs := highs[len(highs)-3:]
-	last3Lows := lows[len(lows)-3:()
+	last3Lows := lows[len(lows)-3:]
 
 	highsFalling := last3Highs[2].Price < last3Highs[1].Price && last3Highs[1].Price < last3Highs[0].Price
 	lowsFalling := last3Lows[2].Price < last3Lows[1].Price && last3Lows[1].Price < last3Lows[0].Price

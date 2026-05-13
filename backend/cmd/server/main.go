@@ -2,14 +2,14 @@ package main
 
 import (
 	"log"
-	"trading-system/backend/internal/config"
-	"trading-system/backend/internal/handlers"
-	"trading_system/backend/internal/middleware"
-	"trading-system/backend/internal/models"
-	"trading-system/backend/internal/services/ai_brain"
-	"trading_system/backend/internal/services/backtest"
-	"trading_system/backend/internal/services/binance"
-	"trading-system/backend/internal/services/pattern"
+	"zen_agentic_ai/internal/config"
+	"zen_agentic_ai/internal/handlers"
+	"zen_agentic_ai/internal/middleware"
+	"zen_agentic_ai/internal/models"
+	"zen_agentic_ai/internal/services/ai_brain"
+	"zen_agentic_ai/internal/services/backtest"
+	"zen_agentic_ai/internal/services/binance"
+	"zen_agentic_ai/internal/services/pattern"
 
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"

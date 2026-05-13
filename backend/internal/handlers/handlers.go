@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	"trading-system/backend/internal/services/ai_brain"
-	"trading-system/backend/internal/services/backtest"
-	"trading-system/backend/internal/services/binance"
-	"trading-system/backend/internal/services/pattern"
+	"zen_agentic_ai/internal/services/ai_brain"
+	"zen_agentic_ai/internal/services/backtest"
+	"zen_agentic_ai/internal/services/binance"
+	"zen_agentic_ai/internal/services/pattern"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Handler struct {

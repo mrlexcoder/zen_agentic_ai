@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"math"
 	"time"
-	"trading-system/backend/internal/models"
-	"trading-system/backend/internal/services/ai_brain"
-	"trading-system/backend/internal/services/binance"
+	"zen_agentic_ai/internal/models"
+	"zen_agentic_ai/internal/services/ai_brain"
+	"zen_agentic_ai/internal/services/binance"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Service struct {
@@ -448,7 +448,8 @@ func (s *Service) GetBacktestSummary(symbol string) (*BacktestStats, error) {
 	}
 
 	// Aggregate statistics from all results
-	var totalReturn, totalTrades, winningTrades int
+	var totalReturn float64
+	var totalTrades, winningTrades int
 	var totalPnl, totalWinPnl, totalLossPnl float64
 
 	for _, r := range results {

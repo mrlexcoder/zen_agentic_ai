@@ -57,18 +57,18 @@ func RateLimiter() gin.HandlerFunc {
 
 		now := time.Now()
 
-		if c, exists := clients[ip]; exists {
-			if now.After(c.resetTime) {
-				c.count = 0
-				c.resetTime = now.Add(1 * time.Minute)
+		if cli, exists := clients[ip]; exists {
+			if now.After(cli.resetTime) {
+				cli.count = 0
+				cli.resetTime = now.Add(1 * time.Minute)
 			}
 
-			if c.count >= 60 { // 60 requests per minute
+			if cli.count >= 60 { // 60 requests per minute
 				c.AbortWithStatus(429)
 				return
 			}
 
-			c.count++
+			cli.count++
 		} else {
 			clients[ip] = &client{
 				count:     1,

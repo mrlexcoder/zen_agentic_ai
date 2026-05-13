@@ -2,14 +2,12 @@ package ai_brain
 
 import (
 	"math"
-	"sort"
-	"strconv"
 	"time"
-	"trading-system/backend/internal/models"
-	"trading-system/backend/internal/services/pattern"
-	"trading-system/backend/internal/services/binance"
+	"zen_agentic_ai/internal/models"
+	"zen_agentic_ai/internal/services/pattern"
+	"zen_agentic_ai/internal/services/binance"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Service struct {
@@ -68,8 +66,7 @@ func (s *Service) AnalyzeSymbol(candles []models.Candle, timeframe string) (*Ana
 	}
 
 	symbol := candles[len(candles)-1].Symbol
-	currentPrice := candles[len(candles)-1].Close
-	currentCandle := candles[len(candles)-1]
+	_ = symbol // suppress unused variable warning
 
 	// Calculate indicators
 	indicators := s.calculateIndicators(candles)
