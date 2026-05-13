@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Trading System - Real-time Analytics</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a25;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0b0;
+      --accent-green: #00d4aa;
+      --accent-red: #ff4757;
+      --accent-blue: #3498ff;
+      --accent-gold: #f1c40f;
+      --border-color: #2a2a3a;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      grid-template-rows: 60px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      grid-column: 1 / -1;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 600;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-stats {
+      display: flex;
+      gap: 32px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .stat-value.positive { color: var(--accent-green); }
+    .stat-value.negative { color: var(--accent-red); }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-section {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .symbol-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .symbol-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      border: 1px solid transparent;
+    }
+
+    .symbol-item:hover, .symbol-item.active {
+      background: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+
+    .symbol-item.active {
+      border-color: var(--accent-green);
+    }
+
+    .symbol-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .symbol-price {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .symbol-change {
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .symbol-change.positive {
+      background: rgba(0, 212, 170, 0.15);
+      color: var(--accent-green);
+    }
+
+    .symbol-change.negative {
+      background: rgba(255, 71, 87, 0.15);
+      color: var(--accent-red);
+    }
+
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .chart-container {
+      flex: 1;
+      background: var(--bg-card);
+      border-radius: 12px;
+      position: relative;
+      min-height: 400px;
+    }
+
+    #chart {
+      width: 100%;
+      height: 100%;
+    }
+
+    .timeframe-selector {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      gap: 4px;
+      z-index: 10;
+    }
+
+    .tf-btn {
+      padding: 6px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tf-btn:hover, .tf-btn.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+
+    /* Right Panel */
+    .right-panel {
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border-color);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .ai-analysis-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .analysis-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .ai-badge {
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .prediction-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .prediction-label {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .prediction-value {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .prediction-value.buy { color: var(--accent-green); }
+    .prediction-value.sell { color: var(--accent-red); }
+    .prediction-value.hold { color: var(--accent-blue); }
+
+    .confidence-bar {
+      height: 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+      border-radius: 3px;
+      transition: width 0.3s;
+    }
+
+    .indicators-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .indicator-item {
+      background: var(--bg-secondary);
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .indicator-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .indicator-value {
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Order Book */
+    .orderbook-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .orderbook-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      font-size: 12px;
+    }
+
+    .orderbook-row .bid { color: var(--accent-green); }
+    .orderbook-row .ask { color: var(--accent-red); }
+
+    /* Backtest Panel */
+    .backtest-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .backtest-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .form-input, .form-select {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
+    }
+
+    .backtest-results {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+
+    .result-value {
+      font-weight: 600;
+    }
+
+    .result-value.positive { color: var(--accent-green); }
+    .result-value.negative { color: var(--accent-red); }
+
+    /* Patterns */
+    .patterns-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .pattern-tag {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      font-size: 11px;
+      margin: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .pattern-tag.bullish {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .pattern-tag.bearish {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border-color);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Status indicator */
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">AI</div>
+        <span class="logo-text">Trading System</span>
+      </div>
+
+      <div class="header-stats">
+        <div class="stat-item">
+          <div class="stat-label">BTC/USDT</div>
+          <div class="stat-value" id="btc-price">Loading...</div>
+          <div class="stat-value" id="btc-change">--</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">XAU/USDT</div>
+          <div class="stat-value" id="gold-price">Loading...</div>
+          <div class="stat-value" id="gold-change">--</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">System Status</div>
+          <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span style="color: var(--accent-green); font-size: 14px;">Live</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="section-title">Markets</div>
+        <div class="symbol-list">
+          <div class="symbol-item active" data-symbol="BTCUSDT">
+            <div>
+              <div class="symbol-name">BTC/USDT</div>
+              <div class="symbol-change positive" id="btc-change-sidebar">+0.00%</div>
+            </div>
+            <div class="symbol-price" id="btc-price-sidebar">--</div>
+          </div>
+          <div class="symbol-item" data-symbol="XAUUSDT">
+            <div>
+              <div class="symbol-name">XAU/USDT</div>
+              <div class="symbol-change positive" id="gold-change-sidebar">+0.00%</div>
+            </div>
+            <div class="symbol-price" id="gold-price-sidebar">--</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title">AI Predictions</div>
+        <div id="ai-predictions">
+          <div class="prediction-row">
+            <span class="prediction-label">BTC Signal</span>
+            <span class="prediction-value hold" id="btc-signal">--</span>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">BTC Confidence</span>
+            <span class="prediction-value" id="btc-confidence">--%</span>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">Gold Signal</span>
+            <span class="prediction-value hold" id="gold-signal">--</span>
+          </div>
+          <div class="prediction-row">
+            <span class="prediction-label">Gold Confidence</span>
+            <span class="prediction-value" id="gold-confidence">--%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="section-title">Detected Patterns</div>
+        <div id="patterns-container">
+          <p style="color: var(--text-secondary); font-size: 12px;">No patterns detected</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="chart-container">
+        <div class="timeframe-selector">
+          <button class="tf-btn active" data-tf="1m">1m</button>
+          <button class="tf-btn" data-tf="5m">5m</button>
+          <button class="tf-btn" data-tf="15m">15m</button>
+          <button class="tf-btn" data-tf="1h">1H</button>
+          <button class="tf-btn" data-tf="4h">4H</button>
+          <button class="tf-btn" data-tf="1d">1D</button>
+        </div>
+        <div id="chart"></div>
+      </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside class="right-panel">
+      <div class="ai-analysis-card">
+        <div class="analysis-header">
+          <span class="ai-badge">AI ANALYSIS</span>
+          <span style="color: var(--text-secondary); font-size: 12px;" id="analysis-symbol">BTC/USDT</span>
+        </div>
+
+        <div class="prediction-row">
+          <span class="prediction-label">Prediction</span>
+          <span class="prediction-value" id="ai-prediction">--</span>
+        </div>
+
+        <div class="prediction-row">
+          <span class="prediction-label">Confidence</span>
+          <span class="prediction-value" id="ai-confidence">--%</span>
+        </div>
+
+        <div class="confidence-bar">
+          <div class="confidence-fill" id="confidence-bar" style="width: 0%"></div>
+        </div>
+
+        <div class="prediction-row" style="margin-top: 12px;">
+          <span class="prediction-label">Entry Price</span>
+          <span class="prediction-value" id="entry-price">--</span>
+        </div>
+
+        <div class="prediction-row">
+          <span class="prediction-label">Target Price</span>
+          <span class="prediction-value positive" id="target-price">--</span>
+        </div>
+
+        <div class="prediction-row">
+          <span class="prediction-label">Stop Loss</span>
+          <span class="prediction-value negative" id="stop-loss">--</span>
+        </div>
+
+        <div class="prediction-row">
+          <span class="prediction-label">Reason</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 12px; margin-top: 4px;" id="ai-reason">Loading analysis...</p>
+
+        <div class="indicators-grid">
+          <div class="indicator-item">
+            <div class="indicator-label">RSI (14)</div>
+            <div class="indicator-value" id="rsi-value">--</div>
+          </div>
+          <div class="indicator-item">
+            <div class="indicator-label">MACD</div>
+            <div class="indicator-value" id="macd-value">--</div>
+          </div>
+          <div class="indicator-item">
+            <div class="indicator-label">EMA 20</div>
+            <div class="indicator-value" id="ema20-value">--</div>
+          </div>
+          <div class="indicator-item">
+            <div class="indicator-label">EMA 50</div>
+            <div class="indicator-value" id="ema50-value">--</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="orderbook-card">
+        <div class="section-title">Order Book</div>
+        <div id="orderbook">
+          <div class="orderbook-row">
+            <span class="ask">0.00</span>
+            <span>0.00</span>
+          </div>
+          <div class="orderbook-row">
+            <span class="ask">0.00</span>
+            <span>0.00</span>
+          </div>
+          <div style="text-align: center; padding: 8px 0; color: var(--text-secondary); font-size: 14px;" id="ob-mid-price">
+            Loading...
+          </div>
+          <div class="orderbook-row">
+            <span>0.00</span>
+            <span class="bid">0.00</span>
+          </div>
+          <div class="orderbook-row">
+            <span>0.00</span>
+            <span class="bid">0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="backtest-card">
+        <div class="section-title">20-Year Backtest</div>
+        <div class="backtest-form">
+          <div class="form-group">
+            <label class="form-label">Symbol</label>
+            <select class="form-select" id="backtest-symbol">
+              <option value="BTCUSDT">BTC/USDT</option>
+              <option value="XAUUSDT">XAU/USDT</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Initial Capital ($)</label>
+            <input type="number" class="form-input" id="initial-capital" value="10000">
+          </div>
+
+          <button class="btn-primary" id="run-backtest">Run Backtest</button>
+        </div>
+
+        <div class="backtest-results" id="backtest-results" style="display: none;">
+          <div class="result-row">
+            <span>Total Return</span>
+            <span class="result-value" id="bt-return">--</span>
+          </div>
+          <div class="result-row">
+            <span>Total Trades</span>
+            <span class="result-value" id="bt-trades">--</span>
+          </div>
+          <div class="result-row">
+            <span>Win Rate</span>
+            <span class="result-value" id="bt-winrate">--</span>
+          </div>
+          <div class="result-row">
+            <span>Max Drawdown</span>
+            <span class="result-value negative" id="bt-drawdown">--</span>
+          </div>
+          <div class="result-row">
+            <span>Sharpe Ratio</span>
+            <span class="result-value" id="bt-sharpe">--</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
